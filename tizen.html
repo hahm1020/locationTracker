@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>내 위치 지도 표시</title>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+    <!-- Leaflet CSS와 JS 불러오기 -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+</head>
+<body>
+<div id="map"></div>
+<script>
+    // 초기 지도 설정 (서울 중심)
+    var map = L.map('map').setView([37.5665, 126.9780], 15);
+
+    // OpenStreetMap 타일 레이어 추가
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // 초기 마커 생성
+    var marker = L.marker([37.5665, 126.9780]).addTo(map);
+
+    // 위치 업데이트 함수
+    function updatePosition(position) {
+        var lat = position.coords.latitude;
+        var lng = position.coords.longitude;
+        map.setView([lat, lng], 15);
+        marker.setLatLng([lat, lng]);
+    }
+
+    // 에러 처리 함수
+    function errorHandler(e) {
+        console.error("위치 정보를 가져오는 중 오류 발생:", e);
+    }
+
+    // Tizen geolocation API 사용 (없을 경우 일반 브라우저 geolocation도 지원)
+    if (window.tizen) {
+        tizen.geolocation.getCurrentPosition(updatePosition, errorHandler);
+        tizen.geolocation.watchPosition(updatePosition, errorHandler);
+    } else if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(updatePosition, errorHandler);
+        navigator.geolocation.watchPosition(updatePosition, errorHandler);
+    } else {
+        console.error("Geolocation API를 사용할 수 없습니다.");
+    }
+</script>
+</body>
+</html>
